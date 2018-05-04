@@ -17,3 +17,8 @@ cd ~/bitcoin/
 
 make -s -j5
 
+cd ~
+mkdir .bitcoin
+mkdir .bitcoin2
+cp bitcoin/bitcoin.conf .bitcoin/bitcoin.conf
+cp bitcoin/bitcoin.conf .bitcoin2/bitcoin.conf
