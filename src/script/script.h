@@ -177,13 +177,10 @@ enum opcodetype
     OP_NOP5 = 0xb4,
     OP_NOP6 = 0xb5,
     OP_NOP7 = 0xb6,
-    OP_NAME_NEW = 0xb7,
-    OP_NOP8 = OP_NAME_NEW,
-    OP_NAME_FIRSTUPDATE = 0xb8,
-    OP_NOP9 = OP_NAME_FIRSTUPDATE,
-    OP_NAME_UPDATE = 0xb9,
-    OP_NOP10 = OP_NAME_UPDATE,
-
+    OP_NAME = 0xb7,
+    OP_NOP8 = OP_NAME,
+    OP_NOP9 = 0xb8,
+    OP_NOP10 = 0xb9,
 
     // template matching params
     OP_SMALLINTEGER = 0xfa,
