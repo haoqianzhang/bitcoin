@@ -33,6 +33,8 @@ public:
  */
 static const unsigned int MAX_OP_RETURN_RELAY = 10003;
 
+static const unsigned int MAX_OP_NAME_RELAY = 23;
+
 /**
  * A data carrying output is an unspendable output containing data. The script
  * type is designated as TX_NULL_DATA.
@@ -41,6 +43,7 @@ extern bool fAcceptDatacarrier;
 
 /** Maximum size of TX_NULL_DATA scripts that this node considers standard. */
 extern unsigned nMaxDatacarrierBytes;
+extern unsigned nMaxNameDatacarrierBytes;
 
 /**
  * Mandatory script verification flags that all new blocks must comply with for
