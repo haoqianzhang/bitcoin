@@ -7,6 +7,10 @@
 #include <consensus/consensus.h>
 #include <primitives/transaction.h>
 #include <script/interpreter.h>
+
+// To get the Value of nMaxNameDatacarrierBytes
+#include <script/standard.h>
+
 #include <consensus/validation.h>
 
 // TODO remove the following dependencies
@@ -215,10 +219,18 @@ bool Consensus::CheckNameTransaction (const CTransaction& tx, int nHeight,const 
         if (tx.vout[i].scriptPubKey[0] == OP_NAME)
         {
             if (nameOut != -1)
-            return state.Invalid(false,0,"Multiple Name Outputs",strprintf("%s: multiple name outputs from transaction %s", __func__, txid));
+            return state.Invalid(false, 0, "Multiple Name Outputs", strprintf("%s: multiple name outputs from transaction %s", __func__, txid));
             nameOut = i;
         }
     }
+
+    // if OP_NAME is not found
+    if (nameOut == -1)
+        return true;
+    
+    if (tx.vout[nameOut].scriptPubKey.size() > nMaxNameDatacarrierBytes)
+        return state.Invalid(false, 0, "Name Is Too Long", strprintf("%s: name is too long from transaction %s", __func__, txid));
+    
     return true;
 }
 
