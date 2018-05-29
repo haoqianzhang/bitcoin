@@ -205,8 +205,28 @@ bool CheckTransaction(const CTransaction& tx, CValidationState &state, bool fChe
     return true;
 }
 
+bool Consensus::CheckNameTransaction (const CTransaction& tx, int nHeight,const CCoinsViewCache& view, CValidationState& state)
+{
+    const std::string strTxid = tx.GetHash ().GetHex ();
+    const char* txid = strTxid.c_str ();
+    int nameOut = -1;
+    for (unsigned i = 0; i < tx.vout.size (); ++i)
+    {
+        if (tx.vout[i].scriptPubKey[0] == OP_NAME)
+        {
+            if (nameOut != -1)
+            return state.Invalid(false,0,"Multiple Name Outputs",strprintf("%s: multiple name outputs from transaction %s", __func__, txid));
+            nameOut = i;
+        }
+    }
+    return true;
+}
+
 bool Consensus::CheckTxInputs(const CTransaction& tx, CValidationState& state, const CCoinsViewCache& inputs, int nSpendHeight, CAmount& txfee)
 {
+    if (!CheckNameTransaction (tx, nSpendHeight, inputs, state))
+        return state.Invalid(false, 0, "", "Tx invalid for Name Transaction");
+
     // are the actual inputs available?
     if (!inputs.HaveInputs(tx)) {
         return state.DoS(100, false, REJECT_INVALID, "bad-txns-inputs-missingorspent", false,

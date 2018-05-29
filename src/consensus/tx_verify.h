@@ -21,6 +21,9 @@ class CValidationState;
 bool CheckTransaction(const CTransaction& tx, CValidationState& state, bool fCheckDuplicateInputs=true);
 
 namespace Consensus {
+
+bool CheckNameTransaction (const CTransaction& tx, int nHeight,const CCoinsViewCache& view, CValidationState& state);
+
 /**
  * Check whether all inputs of this transaction are valid (no double spends and amounts)
  * This does not modify the UTXO set. This does not check scripts and sigs.
