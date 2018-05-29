@@ -33,7 +33,7 @@ public:
  */
 static const unsigned int MAX_OP_RETURN_RELAY = 10003;
 
-static const unsigned int MAX_OP_NAME_RELAY = 23;
+static const unsigned int MAX_OP_ID_RELAY = 23;
 
 /**
  * A data carrying output is an unspendable output containing data. The script
@@ -43,7 +43,7 @@ extern bool fAcceptDatacarrier;
 
 /** Maximum size of TX_NULL_DATA scripts that this node considers standard. */
 extern unsigned nMaxDatacarrierBytes;
-extern unsigned nMaxNameDatacarrierBytes;
+extern unsigned nMaxIdDatacarrierBytes;
 
 /**
  * Mandatory script verification flags that all new blocks must comply with for

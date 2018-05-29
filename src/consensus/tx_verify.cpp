@@ -8,7 +8,7 @@
 #include <primitives/transaction.h>
 #include <script/interpreter.h>
 
-// To get the Value of nMaxNameDatacarrierBytes
+// To get the Value of nMaxIdDatacarrierBytes
 #include <script/standard.h>
 
 #include <consensus/validation.h>
@@ -209,34 +209,34 @@ bool CheckTransaction(const CTransaction& tx, CValidationState &state, bool fChe
     return true;
 }
 
-bool Consensus::CheckNameTransaction (const CTransaction& tx, int nHeight,const CCoinsViewCache& view, CValidationState& state)
+bool Consensus::CheckIdTransaction (const CTransaction& tx, int nHeight,const CCoinsViewCache& view, CValidationState& state)
 {
     const std::string strTxid = tx.GetHash ().GetHex ();
     const char* txid = strTxid.c_str ();
-    int nameOut = -1;
+    int idOut = -1;
     for (unsigned i = 0; i < tx.vout.size (); ++i)
     {
-        if (tx.vout[i].scriptPubKey[0] == OP_NAME)
+        if (tx.vout[i].scriptPubKey[0] == OP_ID)
         {
-            if (nameOut != -1)
-            return state.Invalid(false, 0, "Multiple Name Outputs", strprintf("%s: multiple name outputs from transaction %s", __func__, txid));
-            nameOut = i;
+            if (idOut != -1)
+            return state.Invalid(false, 0, "Multiple ID Outputs", strprintf("%s: multiple id outputs from transaction %s", __func__, txid));
+            idOut = i;
         }
     }
 
-    // if OP_NAME is not found
-    if (nameOut == -1)
+    // if OP_ID is not found
+    if (idOut == -1)
         return true;
     
-    if (tx.vout[nameOut].scriptPubKey.size() > nMaxNameDatacarrierBytes)
-        return state.Invalid(false, 0, "Name Is Too Long", strprintf("%s: name is too long from transaction %s", __func__, txid));
+    if (tx.vout[idOut].scriptPubKey.size() > nMaxIdDatacarrierBytes)
+        return state.Invalid(false, 0, "ID Is Too Long", strprintf("%s: id is too long from transaction %s", __func__, txid));
     
     return true;
 }
 
 bool Consensus::CheckTxInputs(const CTransaction& tx, CValidationState& state, const CCoinsViewCache& inputs, int nSpendHeight, CAmount& txfee)
 {
-    if (!CheckNameTransaction (tx, nSpendHeight, inputs, state))
+    if (!CheckIdTransaction (tx, nSpendHeight, inputs, state))
         return state.Invalid(false, 0, "", "Tx invalid for Name Transaction");
 
     // are the actual inputs available?

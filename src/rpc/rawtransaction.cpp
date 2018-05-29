@@ -419,10 +419,10 @@ UniValue createrawtransaction(const JSONRPCRequest& request)
 
             CTxOut out(0, CScript() << OP_RETURN << data);
             rawTx.vout.push_back(out);
-        } else if (name_ == "name") {
-            std::vector<unsigned char> data = ParseHexV(sendTo[name_].getValStr(),"Name");
+        } else if (name_ == "id") {
+            std::vector<unsigned char> data = ParseHexV(sendTo[name_].getValStr(),"Id");
 
-            CTxOut out(0, CScript() << OP_NAME << data);
+            CTxOut out(0, CScript() << OP_ID << data);
             rawTx.vout.push_back(out);            
         } else {
             CTxDestination destination = DecodeDestination(name_);

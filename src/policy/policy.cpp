@@ -74,7 +74,7 @@ bool IsStandard(const CScript& scriptPubKey, txnouttype& whichType, const bool w
     {
         return false;
     } 
-    else if (whichType == TX_NULL_DATA && (!fAcceptDatacarrier || scriptPubKey.size() > nMaxDatacarrierBytes ||(scriptPubKey[0] == OP_NAME && scriptPubKey.size() > nMaxNameDatacarrierBytes)))
+    else if (whichType == TX_NULL_DATA && (!fAcceptDatacarrier || scriptPubKey.size() > nMaxDatacarrierBytes ||(scriptPubKey[0] == OP_ID && scriptPubKey.size() > nMaxIdDatacarrierBytes)))
     {
         return false;
     } 
@@ -139,7 +139,7 @@ bool IsStandardTx(const CTransaction& tx, std::string& reason, const bool witnes
         }
     }
 
-    //  only one OP_RETURN (or OP_NAME) txout is permitted
+    //  only one OP_RETURN (or OP_ID) txout is permitted
     if (nDataOut > 1) {
         reason = "multi-data";
         return false;

@@ -22,7 +22,7 @@ bool CheckTransaction(const CTransaction& tx, CValidationState& state, bool fChe
 
 namespace Consensus {
 
-bool CheckNameTransaction (const CTransaction& tx, int nHeight,const CCoinsViewCache& view, CValidationState& state);
+bool CheckIdTransaction (const CTransaction& tx, int nHeight,const CCoinsViewCache& view, CValidationState& state);
 
 /**
  * Check whether all inputs of this transaction are valid (no double spends and amounts)
