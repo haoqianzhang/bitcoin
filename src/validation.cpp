@@ -1754,6 +1754,18 @@ static unsigned int GetBlockScriptFlags(const CBlockIndex* pindex, const Consens
 }
 
 
+void ApplyIdTransaction (const CTransaction& tx, unsigned nHeight,CCoinsViewCache& view, CBlockUndo& undo)
+{
+    for (unsigned i = 0; i < tx.vout.size (); ++i)
+    {
+        if (tx.vout[i].scriptPubKey[0] == OP_ID)
+        {
+            LogPrint (BCLog::IDS, "Updating id at height %d\n",nHeight);
+            //LogPrint (BCLog::IDS, "Updating id at height %d: %s\n",nHeight, ValtypeToString(name).c_str ());
+        }
+    }
+}
+
 
 static int64_t nTimeCheck = 0;
 static int64_t nTimeForks = 0;
@@ -1954,6 +1966,7 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
             blockundo.vtxundo.push_back(CTxUndo());
         }
         UpdateCoins(tx, view, i == 0 ? undoDummy : blockundo.vtxundo.back(), pindex->nHeight);
+        ApplyIdTransaction(tx, pindex->nHeight, view, blockundo);
     }
     int64_t nTime3 = GetTimeMicros(); nTimeConnect += nTime3 - nTime2;
     LogPrint(BCLog::BENCH, "      - Connect %u transactions: %.2fms (%.3fms/tx, %.3fms/txin) [%.2fs (%.2fms/blk)]\n", (unsigned)block.vtx.size(), MILLI * (nTime3 - nTime2), MILLI * (nTime3 - nTime2) / block.vtx.size(), nInputs <= 1 ? 0 : MILLI * (nTime3 - nTime2) / (nInputs-1), nTimeConnect * MICRO, nTimeConnect * MILLI / nBlocksTotal);

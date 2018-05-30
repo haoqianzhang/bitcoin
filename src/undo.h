@@ -95,17 +95,52 @@ public:
     }
 };
 
+class CIdTxUndo
+{
+public:
+    // undo information for all txins
+    std::vector<Coin> vprevout;
+
+    template <typename Stream>
+    void Serialize(Stream& s) const {
+        // TODO: avoid reimplementing vector serializer
+        uint64_t count = vprevout.size();
+        ::Serialize(s, COMPACTSIZE(REF(count)));
+        for (const auto& prevout : vprevout) {
+            ::Serialize(s, REF(TxInUndoSerializer(&prevout)));
+        }
+    }
+
+    template <typename Stream>
+    void Unserialize(Stream& s) {
+        // TODO: avoid reimplementing vector deserializer
+        uint64_t count = 0;
+        ::Unserialize(s, COMPACTSIZE(count));
+        if (count > MAX_INPUTS_PER_BLOCK) {
+            throw std::ios_base::failure("Too many input undo records");
+        }
+        vprevout.resize(count);
+        for (auto& prevout : vprevout) {
+            ::Unserialize(s, REF(TxInUndoDeserializer(&prevout)));
+        }
+    }
+};
+
 /** Undo information for a CBlock */
 class CBlockUndo
 {
 public:
     std::vector<CTxUndo> vtxundo; // for all but the coinbase
 
+    /** Stack of operations done to the id database.  */
+    std::vector<CIdTxUndo> vidundo;
+
     ADD_SERIALIZE_METHODS;
 
     template <typename Stream, typename Operation>
     inline void SerializationOp(Stream& s, Operation ser_action) {
         READWRITE(vtxundo);
+        READWRITE(vidundo);
     }
 };
 
