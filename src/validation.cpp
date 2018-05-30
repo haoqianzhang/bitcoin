@@ -1760,8 +1760,25 @@ void ApplyIdTransaction (const CTransaction& tx, unsigned nHeight,CCoinsViewCach
     {
         if (tx.vout[i].scriptPubKey[0] == OP_ID)
         {
-            LogPrint (BCLog::IDS, "Updating id at height %d\n",nHeight);
-            //LogPrint (BCLog::IDS, "Updating id at height %d: %s\n",nHeight, ValtypeToString(name).c_str ());
+            
+            CScript::const_iterator pc = tx.vout[i].scriptPubKey.begin ();
+            opcodetype opcode;
+            std::vector<valtype> args;
+            while (true)
+            {
+              valtype vch;
+
+              if (!tx.vout[i].scriptPubKey.GetOp (pc, opcode, vch))
+                break;
+              if (opcode == OP_DROP || opcode == OP_2DROP || opcode == OP_NOP)
+                break;
+              //if (!(opcode >= 0 && opcode <= OP_PUSHDATA4))
+              //  break;
+
+              args.push_back (vch);
+            }
+            const valtype& name = args[1];
+            LogPrint (BCLog::IDS, "Updating id at height %d: %s\n",nHeight, std::string(name.begin(), name.end()).c_str());
         }
     }
 }
