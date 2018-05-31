@@ -212,6 +212,9 @@ protected:
     mutable size_t cachedCoinsUsage;
 
 public:
+
+    std::set<valtype> entries;
+
     CCoinsViewCache(CCoinsView *baseIn);
 
     /**
@@ -223,6 +226,11 @@ public:
     bool GetCoin(const COutPoint &outpoint, Coin &coin) const override;
     bool HaveCoin(const COutPoint &outpoint) const override;
     uint256 GetBestBlock() const override;
+
+    bool ExistId(const valtype &id) const;
+    void SetId(const valtype &id, const unsigned &nHeight);
+    void DeleteId(const valtype &id);
+
     void SetBestBlock(const uint256 &hashBlock);
     bool BatchWrite(CCoinsMap &mapCoins, const uint256 &hashBlock) override;
     CCoinsViewCursor* Cursor() const override {

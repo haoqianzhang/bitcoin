@@ -138,6 +138,25 @@ uint256 CCoinsViewCache::GetBestBlock() const {
     return hashBlock;
 }
 
+bool CCoinsViewCache::ExistId(const valtype &id) const {
+    const std::set<valtype>::iterator ei = entries.find (id);
+    if (ei == entries.end ())
+        return false;
+    return true;
+}
+
+void CCoinsViewCache::SetId(const valtype &id, const unsigned &nHeight) {
+    const std::set<valtype>::iterator ei = entries.find (id);
+    if (ei == entries.end ())
+        entries.insert(id);
+}
+
+void CCoinsViewCache::DeleteId(const valtype &id) {
+    const std::set<valtype>::iterator ei = entries.find (id);
+    if (ei != entries.end ())
+        entries.erase (ei);
+}
+
 void CCoinsViewCache::SetBestBlock(const uint256 &hashBlockIn) {
     hashBlock = hashBlockIn;
 }

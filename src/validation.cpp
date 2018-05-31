@@ -1597,6 +1597,11 @@ DisconnectResult CChainState::DisconnectBlock(const CBlock& block, const CBlockI
         }
     }
 
+    // undo name operations in reverse order
+    std::vector<CIdTxUndo>::const_reverse_iterator idUndoIter;
+    for (idUndoIter = blockUndo.vidundo.rbegin (); idUndoIter != blockUndo.vidundo.rend (); ++idUndoIter)
+        view.DeleteId(idUndoIter->id);
+
     // move best block pointer to prevout block
     view.SetBestBlock(pindex->pprev->GetBlockHash());
 
@@ -1760,25 +1765,30 @@ void ApplyIdTransaction (const CTransaction& tx, unsigned nHeight,CCoinsViewCach
     {
         if (tx.vout[i].scriptPubKey[0] == OP_ID)
         {
-            
             CScript::const_iterator pc = tx.vout[i].scriptPubKey.begin ();
             opcodetype opcode;
             std::vector<valtype> args;
             while (true)
             {
-              valtype vch;
+                valtype vch;
 
-              if (!tx.vout[i].scriptPubKey.GetOp (pc, opcode, vch))
-                break;
-              if (opcode == OP_DROP || opcode == OP_2DROP || opcode == OP_NOP)
-                break;
-              //if (!(opcode >= 0 && opcode <= OP_PUSHDATA4))
-              //  break;
+                if (!tx.vout[i].scriptPubKey.GetOp (pc, opcode, vch))
+                    break;
+                if (opcode == OP_DROP || opcode == OP_2DROP || opcode == OP_NOP)
+                    break;
+                //if (!(opcode >= 0 && opcode <= OP_PUSHDATA4))
+                //  break;
 
-              args.push_back (vch);
+                args.push_back (vch);
             }
-            const valtype& name = args[1];
-            LogPrint (BCLog::IDS, "Updating id at height %d: %s\n",nHeight, std::string(name.begin(), name.end()).c_str());
+            const valtype& id = args[1];
+            LogPrint (BCLog::IDS, "Updating id at height %d: %s\n",nHeight, std::string(id.begin(), id.end()).c_str());
+
+            CIdTxUndo opUndo;
+            opUndo.id=id;
+            undo.vidundo.push_back(opUndo);
+
+            view.SetId(id, nHeight);
         }
     }
 }

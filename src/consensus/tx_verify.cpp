@@ -230,6 +230,30 @@ bool Consensus::CheckIdTransaction (const CTransaction& tx, int nHeight,const CC
     
     if (tx.vout[idOut].scriptPubKey.size() > nMaxIdDatacarrierBytes)
         return state.Invalid(false, 0, "ID Is Too Long", strprintf("%s: id is too long from transaction %s", __func__, txid));
+
+    CScript::const_iterator pc = tx.vout[idOut].scriptPubKey.begin ();
+    opcodetype opcode;
+    std::vector<valtype> args;
+    while (true)
+    {
+        valtype vch;
+
+        if (!tx.vout[idOut].scriptPubKey.GetOp (pc, opcode, vch))
+            break;
+        if (opcode == OP_DROP || opcode == OP_2DROP || opcode == OP_NOP)
+            break;
+        //if (!(opcode >= 0 && opcode <= OP_PUSHDATA4))
+        //  break;
+
+        args.push_back (vch);
+    }
+
+    /* To Do: Some validation ruls ! */
+
+    const valtype& id = args[1];
+
+    if (view.ExistId(id)==true)
+        return state.Invalid(false, 0, "ID Has Been Registered", strprintf("%s: ID has been registered. Error on transaction %s", __func__, txid));
     
     return true;
 }

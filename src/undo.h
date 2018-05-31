@@ -99,6 +99,7 @@ class CIdTxUndo
 {
 public:
     // undo information for all txins
+    valtype id;
     std::vector<Coin> vprevout;
 
     template <typename Stream>
