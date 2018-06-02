@@ -7,10 +7,12 @@
 #include <consensus/consensus.h>
 #include <random.h>
 
+#include <util.h>
+
 bool CCoinsView::GetCoin(const COutPoint &outpoint, Coin &coin) const { return false; }
 uint256 CCoinsView::GetBestBlock() const { return uint256(); }
 std::vector<uint256> CCoinsView::GetHeadBlocks() const { return std::vector<uint256>(); }
-bool CCoinsView::BatchWrite(CCoinsMap &mapCoins, const uint256 &hashBlock) { return false; }
+bool CCoinsView::BatchWrite(CCoinsMap &mapCoins, const uint256 &hashBlock,const std::set<valtype> &ids) { return false; }
 CCoinsViewCursor *CCoinsView::Cursor() const { return nullptr; }
 
 bool CCoinsView::HaveCoin(const COutPoint &outpoint) const
@@ -25,7 +27,7 @@ bool CCoinsViewBacked::HaveCoin(const COutPoint &outpoint) const { return base->
 uint256 CCoinsViewBacked::GetBestBlock() const { return base->GetBestBlock(); }
 std::vector<uint256> CCoinsViewBacked::GetHeadBlocks() const { return base->GetHeadBlocks(); }
 void CCoinsViewBacked::SetBackend(CCoinsView &viewIn) { base = &viewIn; }
-bool CCoinsViewBacked::BatchWrite(CCoinsMap &mapCoins, const uint256 &hashBlock) { return base->BatchWrite(mapCoins, hashBlock); }
+bool CCoinsViewBacked::BatchWrite(CCoinsMap &mapCoins, const uint256 &hashBlock,const std::set<valtype> &ids) { return base->BatchWrite(mapCoins, hashBlock,ids); }
 CCoinsViewCursor *CCoinsViewBacked::Cursor() const { return base->Cursor(); }
 size_t CCoinsViewBacked::EstimateSize() const { return base->EstimateSize(); }
 
@@ -139,29 +141,29 @@ uint256 CCoinsViewCache::GetBestBlock() const {
 }
 
 bool CCoinsViewCache::ExistId(const valtype &id) const {
-    const std::set<valtype>::iterator ei = entries.find (id);
-    if (ei == entries.end ())
+    const std::set<valtype>::iterator ei = cacheIds.find (id);
+    if (ei == cacheIds.end ())
         return false;
     return true;
 }
 
 void CCoinsViewCache::SetId(const valtype &id, const unsigned &nHeight) {
-    const std::set<valtype>::iterator ei = entries.find (id);
-    if (ei == entries.end ())
-        entries.insert(id);
+    const std::set<valtype>::iterator ei = cacheIds.find (id);
+    if (ei == cacheIds.end ())
+        cacheIds.insert(id);
 }
 
 void CCoinsViewCache::DeleteId(const valtype &id) {
-    const std::set<valtype>::iterator ei = entries.find (id);
-    if (ei != entries.end ())
-        entries.erase (ei);
+    const std::set<valtype>::iterator ei = cacheIds.find (id);
+    if (ei != cacheIds.end ())
+        cacheIds.erase (ei);
 }
 
 void CCoinsViewCache::SetBestBlock(const uint256 &hashBlockIn) {
     hashBlock = hashBlockIn;
 }
 
-bool CCoinsViewCache::BatchWrite(CCoinsMap &mapCoins, const uint256 &hashBlockIn) {
+bool CCoinsViewCache::BatchWrite(CCoinsMap &mapCoins, const uint256 &hashBlockIn, const std::set<valtype> &ids) {
     for (CCoinsMap::iterator it = mapCoins.begin(); it != mapCoins.end(); it = mapCoins.erase(it)) {
         // Ignore non-dirty entries (optimization).
         if (!(it->second.flags & CCoinsCacheEntry::DIRTY)) {
@@ -216,13 +218,22 @@ bool CCoinsViewCache::BatchWrite(CCoinsMap &mapCoins, const uint256 &hashBlockIn
         }
     }
     hashBlock = hashBlockIn;
+
+    for (std::set<valtype>::iterator i = ids.begin (); i != ids.end (); ++i)
+    {
+        const std::set<valtype>::iterator ei = cacheIds.find (*i);
+        if (ei == cacheIds.end ())
+            cacheIds.insert (*i);
+    }
+
     return true;
 }
 
 bool CCoinsViewCache::Flush() {
-    bool fOk = base->BatchWrite(cacheCoins, hashBlock);
+    bool fOk = base->BatchWrite(cacheCoins, hashBlock, cacheIds);
     cacheCoins.clear();
     cachedCoinsUsage = 0;
+    cacheIds.clear();
     return fOk;
 }
 
