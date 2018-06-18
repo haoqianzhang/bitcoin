@@ -177,7 +177,8 @@ enum opcodetype
     OP_NOP5 = 0xb4,
     OP_NOP6 = 0xb5,
     OP_NOP7 = 0xb6,
-    OP_NOP8 = 0xb7,
+    OP_INFO = 0xb7,
+    OP_NOP8 = OP_INFO,
     OP_NOP9 = 0xb8,
     OP_NOP10 = 0xb9,
 

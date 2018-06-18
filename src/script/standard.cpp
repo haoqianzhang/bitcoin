@@ -95,6 +95,11 @@ bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, std::vector<std::v
         return true;
     }
 
+    if (scriptPubKey.size() >= 1 && scriptPubKey[0] == OP_INFO && scriptPubKey.IsPushOnly(scriptPubKey.begin()+1)) {
+        typeRet = TX_NULL_DATA;
+        return true;
+    }
+
     // Scan templates
     const CScript& script1 = scriptPubKey;
     for (const std::pair<txnouttype, CScript>& tplate : mTemplates)
